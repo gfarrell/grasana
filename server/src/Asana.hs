@@ -4,8 +4,7 @@ module Asana (
     getTasksForProject
   , getSubtasks
   , getDependencies
-  , Task
-  , ApiResponse
+  , Task (..)
   ) where
 
 import Data.Aeson
@@ -19,15 +18,15 @@ data Task = Task {
 
 instance FromJSON Task where
   parseJSON (Object v) = Task <$> v .: "gid" <*> v .: "name"
+instance ToJSON Task where
+  toJSON (Task id name) = object [ "gid" .= id, "name" .= name ]
 
 newtype AsanaResponse = AsanaResponse { asanaResponseData :: [Task] }
 
 instance FromJSON AsanaResponse where
   parseJSON (Object v) = AsanaResponse <$> v .: "data"
 
-type ApiResponse = [Task]
-
-getFromAsana :: String -> String -> IO ApiResponse
+getFromAsana :: String -> String -> IO [Task]
 getFromAsana token path = do
   response <- httpJSON
               $ addRequestHeader "Authorization" (fromString $ "Bearer " ++ token)
@@ -39,11 +38,11 @@ getFromAsana token path = do
               defaultRequest
   return . asanaResponseData . getResponseBody $ response
 
-getTasksForProject :: String -> String -> IO ApiResponse
+getTasksForProject :: String -> String -> IO [Task]
 getTasksForProject token projectId = getFromAsana token $ "projects/" ++ projectId ++ "/tasks"
 
-getSubtasks :: String -> String -> IO ApiResponse
+getSubtasks :: String -> String -> IO [Task]
 getSubtasks token taskId = getFromAsana token $ "tasks/" ++ taskId ++ "/subtasks"
 
-getDependencies :: String -> String -> IO ApiResponse
+getDependencies :: String -> String -> IO [Task]
 getDependencies token taskId = getFromAsana token $ "tasks/" ++ taskId ++ "/dependencies"
