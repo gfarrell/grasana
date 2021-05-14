@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "ES2017",
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "jsx": "react",
+    "sourceMap": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"]
+}
