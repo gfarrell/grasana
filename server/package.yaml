@@ -21,6 +21,8 @@ dependencies:
 - bytestring >= 0.10 && < 0.12
 - yaml >= 0.10 && < 0.12
 - utf8-string >= 1.0 && < 2.0
+- yesod >= 1.6 && < 2.0
+- text >= 1.2 && < 2.0
 
 library:
   source-dirs: src

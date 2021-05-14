@@ -13,7 +13,7 @@ a graph representation which the frontend can then easily render.
 - [x] Create Asana API interface to extract data from Asana
 - [x] Create transformer to turn an initial set of tasks into a dependency tree
 - [x] Parse the dependency tree into a list of tasks and a list of edges
-- [ ] Create an HTTP backend server
+- [x] Create an HTTP backend server
 - [ ] Host the frontend from the server
 - [ ] Move from Asana PAT (hardcoded) to Oauth
 

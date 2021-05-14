@@ -5,6 +5,7 @@ module TaskGraph (
   , Relation (..)
   , Edge (..)
   , fetchTaskTree
+  , merge
   ) where
 
 import Asana (
