@@ -27,6 +27,7 @@ library
   exposed-modules:
       Asana
       TaskGraph
+      TaskTree
   other-modules:
       Paths_grasana_server
   hs-source-dirs:
@@ -69,6 +70,7 @@ test-suite server-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TaskTreeSpec
       Paths_grasana_server
   hs-source-dirs:
       test

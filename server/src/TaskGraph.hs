@@ -22,8 +22,11 @@ instance ToJSON Relation where
   toJSON Subtask    = "subtask" :: Value
   toJSON Dependency = "dependency" :: Value
 
-data Edge = Edge Relation String String
-  deriving Show
+data Edge = Edge {
+  rel :: Relation
+, parentId :: String
+, childId :: String
+} deriving Show
 instance ToJSON Edge where
   toJSON (Edge rel parentId childId) = toJSON (rel, parentId, childId)
 
