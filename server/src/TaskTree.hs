@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 module TaskTree (
   TaskTreeNode (..)
 , Hierarchical (..)
@@ -7,12 +8,16 @@ module TaskTree (
 import TaskGraph (TaskGraph, Edge(parentId, childId))
 import Asana (Task(taskId, taskName))
 import Data.HashMap (Map(..), (!), insert, empty, notMember)
+import Data.Aeson
 
 data TaskTreeNode = TaskTreeNode {
   nodeId :: String
 , nodeName :: String
 , children :: [TaskTreeNode]
   } deriving (Eq, Show)
+
+instance ToJSON TaskTreeNode where
+  toJSON (TaskTreeNode id name children) = object [ "id" .= id, "name" .= name, "children" .= toJSON children ]
 
 class Hierarchical a where
   toTree :: a -> String -> Maybe TaskTreeNode
