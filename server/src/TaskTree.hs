@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+
 module TaskTree (
   TaskTreeNode (..)
 , Hierarchical (..)
@@ -7,8 +8,8 @@ module TaskTree (
 
 import TaskGraph (TaskGraph, Edge(parentId, childId))
 import Asana (Task(taskId, taskName))
-import Data.HashMap (Map(..), (!), insert, empty, notMember)
 import Data.Aeson
+import Data.Functor ((<&>))
 
 data TaskTreeNode = TaskTreeNode {
   nodeId :: String
@@ -29,9 +30,8 @@ getTask tasks id = let found = filter ((== id) . taskId) tasks
 
 makeTreeNode :: TaskGraph -> Task -> Maybe TaskTreeNode
 makeTreeNode graph@(ts, es) t =
-  sequence (getTask ts . childId <$> filter ((== taskId t) . parentId) es)
-    >>= \childTasks -> sequence (makeTreeNode graph <$> childTasks)
-      >>= \childNodes -> return $ TaskTreeNode (taskId t) (taskName t) childNodes
+  mapM (getTask ts . childId) (filter ((== taskId t) . parentId) es) >>= mapM (makeTreeNode graph)
+  <&> TaskTreeNode (taskId t) (taskName t)
 
 instance Hierarchical TaskGraph where
-  toTree graph rootId = getTask (fst graph) rootId >>= \rootTask -> makeTreeNode graph rootTask
+  toTree graph rootId = getTask (fst graph) rootId >>= makeTreeNode graph
