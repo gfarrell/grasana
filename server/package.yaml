@@ -25,6 +25,7 @@ dependencies:
 - text >= 1.2 && < 2.0
 - http-types >= 0.10 && < 0.20
 - vector >= 0.10 && < 0.20
+- async >= 2.0 && < 3.0
 
 library:
   source-dirs: src

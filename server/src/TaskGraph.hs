@@ -16,6 +16,9 @@ import Asana (
 import Control.Monad
 import Data.Aeson
 import Data.Vector ((!))
+import Control.Concurrent.Async (mapConcurrently)
+import Control.Concurrent.QSem
+import Control.Exception (bracket_)
 
 data Relation = Subtask | Dependency
   deriving Show
@@ -47,8 +50,9 @@ makeEdge rel parent child = Edge rel (taskId parent) (taskId child)
 -- TaskGraph (i.e. a list of Tasks and a list of Edges).
 -- TODO: integrate dependencies as well as subtasks
 -- TODO: handle circular dependencies
-rFetchTaskGraph :: String -> Task -> IO TaskGraph
-rFetchTaskGraph token task = do
-  subtasks <- getSubtasks token $ taskId task
-  let edges = map (makeEdge Subtask task) subtasks
-  foldr merge ([task], edges) <$> mapM (rFetchTaskGraph token) subtasks
+rFetchTaskGraph :: QSem -> String -> Task -> IO TaskGraph
+rFetchTaskGraph sem token task =
+    do
+      subtasks <- bracket_ (waitQSem sem) (signalQSem sem) $ getSubtasks token $ taskId task
+      let edges = map (makeEdge Subtask task) subtasks
+      foldr merge ([task], edges) <$> mapConcurrently (rFetchTaskGraph sem token) subtasks
