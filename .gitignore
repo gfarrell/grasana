@@ -1,2 +1,4 @@
-node_modules
+.stack-work/
+*~
+*.aes
 *.env

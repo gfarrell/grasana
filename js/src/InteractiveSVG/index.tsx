@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from "classnames";
 
 export interface Rect {
   originX: number;
@@ -73,7 +74,7 @@ export default class InteractiveSVG extends React.PureComponent<Props, State> {
     return (
       <svg
         id={this.props.id}
-        className={this.props.className}
+        className={classnames(this.props.className, { panning: this.state.panning })}
         viewBox={ `${rect.originX} ${rect.originY} ${rect.width} ${rect.height}` }
         onMouseDown={ startDrag }
         onMouseUp={ stopDrag }
