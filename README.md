@@ -19,6 +19,21 @@ The `DOT` output format uses the graph representation, whereas the `HTML` format
 technically uses the tree representation under the hood. You can output either
 graph or tree form when using the `JSON` format
 
+## TODO
+
+- [x] Asana API interactions
+- [x] Graph representation
+- [x] Tree representation
+- [x] DOT output
+- [ ] Incorporate built JS for HTML output
+- [ ] Handle unsound graphs and exit properly
+- [ ] Find a way to mock HTTP requests
+- [ ] Write tests for DOT rendering
+- [ ] Write tests for HTML rendering
+- [ ] Add installation instructions
+- [ ] Add contribution instructions
+- [ ] Allow passing of asana token as an option
+
 ## Installation
 
 !TODO
