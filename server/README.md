@@ -1,30 +1,53 @@
-# Grasana Server
+# Grasana
 
-This package provides the server backend for the Grasana project.
-Grasana allows you to explore an Asana project graphically, which makes
-it easier to understand the dependencies for a set of tasks (both as
-subtasks and explicit dependencies).
+Grasana is a tool for representing Asana projects as graphs (well, mostly as
+trees actually). It can output the following formats:
 
-The Server backend talks to the Asana API and transforms a project into
-a graph representation which the frontend can then easily render.
+- `DOT`: the graphviz DOT language
+- `HTML`: (TODO) an HTML page complete with D3 to render the graph nicely and
+  interactively
+- `JSON`: representing either in graph form or tree form in JSON
 
-## TODO
+There are two representations Grasana uses for projects: "graph" form and "tree"
+form. The graph form represents the project as a tuple containing a list of
+tasks and a list of edges (relations between tasks). Edges can represent either
+subtask relations or dependencies (NB. Grasana does not currently parse
+dependencies, only subtasks). The tree form represents the project as a tree in
+which each node has an `id`, a `name`, and `children` (a list of child nodes).
 
-- [x] Create Asana API interface to extract data from Asana
-- [x] Create transformer to turn an initial set of tasks into a dependency tree
-- [x] Parse the dependency tree into a list of tasks and a list of edges
-- [x] Transform the dependency graph into a tree
-- [x] Create an HTTP backend server
-- [ ] Host the frontend from the server
-- [ ] Move from Asana PAT (hardcoded) to Oauth
+The `DOT` output format uses the graph representation, whereas the `HTML` format
+technically uses the tree representation under the hood. You can output either
+graph or tree form when using the `JSON` format
 
-## Installation and Usage
+## Installation
 
 !TODO
+
+## Usage
+
+    grasana format [-t token] projectid
+
+* `format`: can be one of `html`, `dot`, `jsontree`, or `jsongraph`;
+* `token`: your [Asana PAT][asana-pat] (optionally as an environment variable
+  instead to keep it out of your command history);
+* `projectid`: the id of the project you want to represent graphically.
+
+[asana-pat]: https://developers.asana.com/docs/personal-access-token
+
+### Example: rendering immediately with graphviz
+
+If you have [graphviz](https://graphviz.org/) installed, you can use it to
+immediately render your project as an SVG.
+
+    grasana dot <projectid> | dot -Tsvg > ./project.svg
 
 ## Testing
 
-!TODO
+Some (but not all) of grasana has unit tests, just run `stack test` to go
+through the spec. All tests specs are written using `Hspec` and can be found in
+the `/test` directory.
+
+    stack test
 
 ### Mocking HTTP Requests
 

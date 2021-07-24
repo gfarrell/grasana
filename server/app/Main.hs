@@ -1,49 +1,51 @@
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module Main where
 
-import Yesod
-import Data.Aeson (Value)
-import Asana (getTasksForProject, Task (..))
-import System.Environment (getEnv)
-import TaskGraph (rFetchTaskGraph, merge, Edge (..), Relation (..))
-import TaskTree
-import Network.HTTP.Types ( status500 )
+import Dot (Renderable (toDot))
+import Data.Aeson
+import Data.ByteString.Lazy.UTF8 (ByteString, fromString, toString)
+import Asana
 import Control.Concurrent.QSem
-import Control.Concurrent.Async
+import Control.Concurrent.Async (mapConcurrently)
+import Data.Functor ((<&>))
+import System.Environment (getEnv, getArgs)
+import System.Exit (exitWith, ExitCode(ExitFailure))
+import System.IO (stderr, hPutStrLn)
+import TaskTree
+import TaskGraph
 
-data GrasanaApp = GrasanaApp
+generateInitialGraph :: String -> [Task] -> TaskGraph
+generateInitialGraph projectId tasks = ([ Task projectId "Project Root" ], map (Edge Subtask projectId . taskId) tasks)
 
-mkYesod "GrasanaApp" [parseRoutes|
-                     / HomeR GET
-                     /projects/#Int ProjectR GET
-                     /trees/#Int TreeR GET
-                     |]
+getTaskGraph :: String -> String -> IO TaskGraph
+getTaskGraph token projectId = do
+  sem <- newQSem 16 -- limit to 16 concurrent requests
+  getTasksForProject token projectId >>= \t -> fmap (foldr merge (generateInitialGraph projectId t))
+                                                  . mapConcurrently (rFetchTaskGraph sem token) $ t
 
-instance Yesod GrasanaApp
+getTaskTree :: String -> String -> IO (Maybe TaskTreeNode)
+getTaskTree token projectId = getTaskGraph token projectId <&> flip toTree projectId
 
-getHomeR = return $ object ["msg" .= "Hello World"]
+unsoundGraphJSON :: ByteString
+unsoundGraphJSON = fromString "{ \"error\":\"unsound graph\" }"
 
-getProjectR :: Int -> Handler Value
-getProjectR projectIdInt = do
-  sem   <- liftIO $ newQSem 15 -- limit of 15 requests concurrently
-  token <- liftIO $ getEnv "ASANA_PAT"
-  tasks <- liftIO $ getTasksForProject token $ show projectIdInt
-  returnJson =<< liftIO (foldr merge ([], []) <$> mapConcurrently (rFetchTaskGraph sem token) tasks)
+-- TODO: using MaybeT or similar MTS to handle the error state and exit with an
+-- error code (for both unknown actions and unsound graphs).
 
-getTreeR :: Int -> Handler Value
-getTreeR projectIdInt = do
-  let projectId = show projectIdInt
-  sem   <- liftIO $ newQSem 30 -- limit of 30 requests concurrently
-  token <- liftIO $ getEnv "ASANA_PAT"
-  tasks <- liftIO $ getTasksForProject token projectId
-  graph <- liftIO $ foldr merge ([ Task projectId "Project Root" ], map (Edge Subtask projectId . taskId) tasks) <$> mapConcurrently (rFetchTaskGraph sem token) tasks
-  case toTree graph projectId of Just tree -> returnJson tree
-                                 Nothing   -> sendResponseStatus status500 "Unsound graph"
+exitWithErrorMessage :: String -> ExitCode -> IO a
+exitWithErrorMessage m e = hPutStrLn stderr m >> exitWith e
 
-main = warp 1337 GrasanaApp
+runAction :: String -> String -> String -> IO ByteString
+runAction "dot" token projectId       = getTaskGraph token projectId <&> fromString . toDot
+runAction "jsongraph" token projectId = getTaskGraph token projectId <&> encode
+runAction "jsontree" token projectId  = getTaskTree token projectId <&> maybe unsoundGraphJSON encode
+-- TODO: enable html output format
+-- runAction "html" token projectId      = getTaskTree token projectId <&> fromString . renderHtml
+runAction a _ _                       = exitWithErrorMessage ("unknown action: " ++ a) (ExitFailure 1)
+
+main :: IO ()
+main = do
+  [action, projectId] <- getArgs
+  token <- getEnv "ASANA_PAT"
+  runAction action token projectId >>= putStr . toString

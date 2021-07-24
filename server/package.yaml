@@ -1,4 +1,4 @@
-name:                grasana-server
+name:                grasana
 version:             0.1.0.0
 github:              "gfarrell/grasana"
 license:             BSD3
@@ -10,28 +10,30 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-description: Backend server for Grasana, a tool for exploring Asana projects graphically
+description: Tool for rendering Asana projects as graphs
 
 dependencies:
-- base >= 4.7 && < 5
-- hashmap >= 1.3 && < 2
-- http-conduit >= 2.3 && < 3
-- hspec >= 2.7 && < 3
 - aeson >= 1.5 && < 2.0
-- bytestring >= 0.10 && < 0.12
-- yaml >= 0.10 && < 0.12
-- utf8-string >= 1.0 && < 2.0
-- yesod >= 1.6 && < 2.0
-- text >= 1.2 && < 2.0
-- http-types >= 0.10 && < 0.20
-- vector >= 0.10 && < 0.20
 - async >= 2.0 && < 3.0
+- base >= 4.7 && < 5
+- blaze-html >= 0.9 && < 0.10
+- bytestring >= 0.10 && < 0.12
+- hashmap >= 1.3 && < 2
+- hspec >= 2.7 && < 3
+- http-conduit >= 2.3 && < 3
+- http-types >= 0.10 && < 0.20
+- shakespeare >= 2 && < 3
+- text >= 1.2 && < 2.0
+- utf8-string >= 1.0 && < 2.0
+- vector >= 0.10 && < 0.20
+- word-wrap >= 0.4 && < 0.5
+- yaml >= 0.10 && < 0.12
 
 library:
   source-dirs: src
 
 executables:
-  server-exe:
+  grasana:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -39,10 +41,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - grasana-server
+    - grasana
 
 tests:
-  server-test:
+  grasana-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -50,5 +52,5 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - grasana-server
+    - grasana
     - hspec

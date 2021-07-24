@@ -33,10 +33,6 @@ data Edge = Edge {
 } deriving Show
 instance ToJSON Edge where
   toJSON (Edge rel parentId childId) = toJSON (rel, parentId, childId)
-instance FromJSON Edge where
-  parseJSON j = do
-    [r, p, c] <- parseJSON j
-    return $ Edge (case r of "subtask" -> Subtask; "dependency" -> Dependency) p c
 
 type TaskGraph = ([Task], [Edge])
 
