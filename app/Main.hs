@@ -50,7 +50,8 @@ usage = do
 
 parse :: [String] -> IO ()
 parse ("-h":_) = usage >> exitSuccess
-parse ("-t":token:rest) = parse2 rest token
+parse ["-t", token, a, p] = parse2 [a, p] token
+parse ("-t":_) = usage >> exitWithErrorMessage "missing token" (ExitFailure 3)
 parse args = getEnv "ASANA_PAT" >>= parse2 args
 
 parse2 :: [String] -> String -> IO ()
