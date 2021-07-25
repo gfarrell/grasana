@@ -24,9 +24,22 @@ graph or tree form when using the `JSON` format
 There are two parts of Grasana: a typescript part and a Haskell part. The
 typescript part is for the HTML output to make a nice tree viewer.
 
+### Dependencies
+
+In order to build this project you will need to install:
+
+- [stack](haskellstack.org)
+- [ghc](https://www.haskell.org/ghc/) >= 8.10
+- [nodejs](nodejs.org/)
+- [yarn](classic.yarnpkg.com) (v1)
+
+### Building
+
 You can build the `grasana` executable by running `make dist/grasana`.
 If it already exists, run `make clean` first. The executable will then
 be copied, somewhat unsurprisingly, to `dist/grasana`.
+
+### Installing
 
 If you want to install the binary you can run `make install` which will
 clean, build, and then copy the binary to your local binary path (you
