@@ -34,9 +34,6 @@ unsoundGraphJSON = fromString "{ \"error\":\"unsound graph\" }"
 unsoundGraphHTML :: ByteString
 unsoundGraphHTML = fromString "<!DOCTYPE html><html><body><p>unsound graph</p></body></html>"
 
--- TODO: using MaybeT or similar MTS to handle the error state and exit with an
--- error code (for both unknown actions and unsound graphs).
-
 exitWithErrorMessage :: String -> ExitCode -> IO a
 exitWithErrorMessage m e = hPutStrLn stderr ("Error: " ++ m) >> exitWith e
 
