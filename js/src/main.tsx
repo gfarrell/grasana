@@ -1,12 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { TaskTree } from "./API";
 import { TreeVisualiser } from "./TreeVisualiser";
-import { fetchProjectTree } from "./API";
+
+declare global {
+  interface Window {
+    treejson: TaskTree;
+  }
+}
 
 async function main() {
-  const data = await fetchProjectTree("XXX");
   ReactDOM.render(
-    <TreeVisualiser tree={data} minWidth={800} minHeight={600} />,
+    <TreeVisualiser tree={window.treejson} minWidth={800} minHeight={600} />,
     document.getElementById("AppContainer")
   );
 }

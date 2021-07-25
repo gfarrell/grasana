@@ -11,14 +11,3 @@ export type TaskTree = {
   name: string;
   children: TaskTree[];
 };
-
-import * as td from "./test-data.json";
-import * as tt from "./test-tree.json";
-
-export async function fetchProjectGraph(projectId: string): Promise<TaskGraph> {
-  return td as TaskGraph;
-}
-
-export async function fetchProjectTree(projectId: string): Promise<TaskTree> {
-  return tt as TaskTree;
-}

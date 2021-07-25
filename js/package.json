@@ -2,11 +2,11 @@
   "name": "grasana-app",
   "version": "0.1.0",
   "description": "Application frontend for Grasana",
-  "main": "index.html",
+  "main": "main.tsx",
   "author": "Gideon Farrell <gideon@gtf.io>",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --mode production",
     "serve": "NODE_ENV=development webpack serve"
   },
   "devDependencies": {

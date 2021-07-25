@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: "./src/main.tsx",
-  devtool: "inline-source-map",
   module: {
     rules: [
       {
@@ -14,13 +13,15 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  }, 
+    extensions: [".tsx", ".ts", ".js"],
+  },
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
   },
-  plugins: [new HtmlWebpackPlugin({
-    template: "src/index.html",
-  })],
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "src/index.html",
+    }),
+  ],
 };
