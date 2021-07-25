@@ -3,6 +3,7 @@
 module Main where
 
 import Dot (Renderable (toDot))
+import Html (makeHtml)
 import Data.Aeson
 import Data.ByteString.Lazy.UTF8 (ByteString, fromString, toString)
 import Asana
@@ -30,6 +31,9 @@ getTaskTree token projectId = getTaskGraph token projectId <&> flip toTree proje
 unsoundGraphJSON :: ByteString
 unsoundGraphJSON = fromString "{ \"error\":\"unsound graph\" }"
 
+unsoundGraphHTML :: ByteString
+unsoundGraphHTML = fromString "<!DOCTYPE html><html><body><p>unsound graph</p></body></html>"
+
 -- TODO: using MaybeT or similar MTS to handle the error state and exit with an
 -- error code (for both unknown actions and unsound graphs).
 
@@ -40,8 +44,7 @@ runAction :: String -> String -> String -> IO ByteString
 runAction "dot" token projectId       = getTaskGraph token projectId <&> fromString . toDot
 runAction "jsongraph" token projectId = getTaskGraph token projectId <&> encode
 runAction "jsontree" token projectId  = getTaskTree token projectId <&> maybe unsoundGraphJSON encode
--- TODO: enable html output format
--- runAction "html" token projectId      = getTaskTree token projectId <&> fromString . renderHtml
+runAction "html" token projectId      = getTaskTree token projectId <&> maybe unsoundGraphHTML (fromString . makeHtml)
 runAction a _ _                       = exitWithErrorMessage ("unknown action: " ++ a) (ExitFailure 1)
 
 main :: IO ()
