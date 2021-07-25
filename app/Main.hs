@@ -11,7 +11,7 @@ import Control.Concurrent.QSem
 import Control.Concurrent.Async (mapConcurrently)
 import Data.Functor ((<&>))
 import System.Environment (getEnv, getArgs)
-import System.Exit (exitWith, ExitCode(ExitFailure))
+import System.Exit (exitSuccess, exitWith, ExitCode(ExitFailure))
 import System.IO (stderr, hPutStrLn)
 import TaskTree
 import TaskGraph
@@ -38,17 +38,32 @@ unsoundGraphHTML = fromString "<!DOCTYPE html><html><body><p>unsound graph</p></
 -- error code (for both unknown actions and unsound graphs).
 
 exitWithErrorMessage :: String -> ExitCode -> IO a
-exitWithErrorMessage m e = hPutStrLn stderr m >> exitWith e
+exitWithErrorMessage m e = hPutStrLn stderr ("Error: " ++ m) >> exitWith e
 
-runAction :: String -> String -> String -> IO ByteString
-runAction "dot" token projectId       = getTaskGraph token projectId <&> fromString . toDot
-runAction "jsongraph" token projectId = getTaskGraph token projectId <&> encode
-runAction "jsontree" token projectId  = getTaskTree token projectId <&> maybe unsoundGraphJSON encode
-runAction "html" token projectId      = getTaskTree token projectId <&> maybe unsoundGraphHTML (fromString . makeHtml)
-runAction a _ _                       = exitWithErrorMessage ("unknown action: " ++ a) (ExitFailure 1)
+usage = do
+  putStrLn "Usage: grasana [-h] [-t token] format projectid"
+  putStrLn ""
+  putStrLn "  - token: optional Asana personal access token, if not specified will be expected in the environment as ASANA_PAT"
+  putStrLn "  - format: html | dot | jsongraph | jsontree"
+  putStrLn "  - projectid: the ID of the Asana project you want to transform into a graph"
+  putStrLn ""
+
+parse :: [String] -> IO ()
+parse ("-h":_) = usage >> exitSuccess
+parse ("-t":token:rest) = parse2 rest token
+parse args = getEnv "ASANA_PAT" >>= parse2 args
+
+parse2 :: [String] -> String -> IO ()
+parse2 ["dot", p] t       = getTaskGraph t p >>= putStrLn . toDot >> exitSuccess
+parse2 ["jsongraph", p] t = getTaskGraph t p >>= putStrLn . toString . encode >> exitSuccess
+parse2 ["jsontree", p] t  = getTaskTree t p >>=
+                              putStrLn . toString . maybe unsoundGraphJSON encode
+                              >> exitSuccess
+parse2 ["html", p] t      = getTaskTree t p >>=
+                              putStrLn . toString . maybe unsoundGraphHTML (fromString . makeHtml)
+                              >> exitSuccess
+parse2 [a, _] _           = exitWithErrorMessage ("unknown action " ++ a) (ExitFailure 2)
+parse2 _ _                = usage >> exitWithErrorMessage "missing arguments" (ExitFailure 1)
 
 main :: IO ()
-main = do
-  [action, projectId] <- getArgs
-  token <- getEnv "ASANA_PAT"
-  runAction action token projectId >>= putStr . toString
+main = getArgs >>= parse

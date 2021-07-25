@@ -4,7 +4,7 @@ Grasana is a tool for representing Asana projects as graphs (well, mostly as
 trees actually). It can output the following formats:
 
 - DOT: the graphviz DOT language
-- HTML: (TODO) an HTML page complete with D3 to render the graph nicely and
+- HTML: an HTML page complete with D3 to render the graph nicely and
   interactively
 - JSON: representing either in graph form or tree form in JSON
 
@@ -110,11 +110,11 @@ reasoning behind the implementation and I'll review and merge (or reject).
 - [ ] Write tests for HTML rendering
 - [ ] Handle unsound graphs and exit properly
 - [ ] Handle Asana errors nicely (auth, 404, etc.)
-- [ ] Handle missing PAT nicely
+- [x] Handle missing PAT nicely
 - [ ] Find a way to mock HTTP requests
 - [x] Add installation instructions
 - [x] Add contribution instructions
-- [ ] Allow passing of asana token as an option
+- [x] Allow passing of asana token as an option
 - [ ] Zoom to mouse point not origin in `InteractiveSVGViewer`
 - [ ] Add bounds around labels in the HTML visualisation
 - [ ] Wrap text labels in the HTML visualisation
