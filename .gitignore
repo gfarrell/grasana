@@ -2,3 +2,4 @@
 *~
 *.aes
 *.env
+dist
